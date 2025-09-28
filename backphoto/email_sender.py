@@ -38,37 +38,40 @@ class EmailSender:
             timestamp = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
             body = f"""
 <html>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #2c3e50; text-align: center; margin-bottom: 30px;">
+<body style="margin: 0; padding: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;">
+    <div style="max-width: 400px; margin: 0 auto; padding: 50px 20px;">
+        <h1 style="color: white; font-size: 2.5rem; font-weight: 200; margin-bottom: 40px; text-align: center; letter-spacing: -0.8px; line-height: 1.2; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             The Unseen Portrait
-        </h2>
+        </h1>
         
-        
-        <p style="font-size: 18px; font-style: italic; margin-bottom: 25px; text-align: center;">
-            The first glimpse<br>
-            of your unseen self.
-        </p>
-        
-        <p style="font-size: 16px; margin-bottom: 20px; text-align: center;">
-            Sometimes<br>
-            the gentlest truths are found<br>
-            in the places we never look.
-        </p>
-        
-        <p style="font-size: 16px; margin-bottom: 25px; text-align: center;">
-            Here's to a day that feels new,<br>
-            as if the world<br>
-            has just begun again. 🌿
-        </p>
-        
-        <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 30px; text-align: center;">
-            <p style="font-size: 14px; color: #666; margin-bottom: 8px;">
-                Captured on {timestamp}
+        <div style="max-width: 320px; margin: 0 auto; padding: 40px 25px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: 1px solid rgba(255, 255, 255, 0.2); text-align: center;">
+            <p style="font-size: 18px; font-style: italic; margin-bottom: 30px; color: #4a5568; line-height: 1.6;">
+                The first glimpse<br>
+                of your unseen self.
             </p>
-            <p style="font-size: 14px; color: #666; margin-bottom: 0;">
-                — Yinyin Zhou
+            
+            <p style="font-size: 16px; margin-bottom: 25px; color: #4a5568; line-height: 1.6;">
+                We are bound<br>
+                to what lies before our eyes,<br>
+                as if half the world<br>
+                had slipped away unseen.
             </p>
+            
+            <p style="font-size: 16px; margin-bottom: 0; color: #4a5568; line-height: 1.6;">
+                Sometimes,<br>
+                the gentlest truths are waiting<br>
+                in the places<br>
+                we never think to look.
+            </p>
+            
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 25px; margin-top: 30px; text-align: center;">
+                <p style="font-size: 14px; color: #666; margin-bottom: 8px; font-weight: 300;">
+                    Captured on {timestamp}
+                </p>
+                <p style="font-size: 14px; color: #666; margin-bottom: 0; font-weight: 300;">
+                    © 2025 Yinyin Zhou. All rights reserved.
+                </p>
+            </div>
         </div>
     </div>
 </body>

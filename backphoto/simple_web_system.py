@@ -17,6 +17,7 @@ import urllib.parse
 import qrcode
 from io import BytesIO
 import base64
+from datetime import datetime
 
 # 导入现有模块
 from back_detector import BackDetector
@@ -35,6 +36,8 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
             self.serve_email_input()
         elif self.path == '/camera':
             self.serve_camera()
+        elif self.path == '/complete':
+            self.serve_complete()
         elif self.path == '/api/status':
             self.serve_status()
         else:
@@ -48,8 +51,18 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
             self.handle_start_camera()
         elif self.path == '/api/stop-camera':
             self.handle_stop_camera()
+        elif self.path == '/api/send-feedback':
+            self.handle_send_feedback()
         else:
             self.send_error(404)
+    
+    def do_OPTIONS(self):
+        """处理OPTIONS请求（CORS预检）"""
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
     
     def serve_index(self):
         """主页 - 显示二维码"""
@@ -67,13 +80,16 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
     <style>
         * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         body {{ 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            font-feature-settings: 'kern' 1, 'liga' 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }}
         .container {{ 
             background: rgba(255, 255, 255, 0.95);
@@ -89,9 +105,10 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
         h1 {{ 
             color: #2d3748; 
             font-size: 2.5rem;
-            font-weight: 300;
+            font-weight: 200;
             margin-bottom: 20px;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.8px;
+            line-height: 1.2;
         }}
         .subtitle {{
             color: #718096;
@@ -101,15 +118,19 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
         }}
         .qr-container {{ 
             margin: 30px 0;
-            padding: 20px;
+            padding: 30px;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }}
         .qr-code {{ 
-            max-width: 250px; 
-            margin: 0 auto;
-            border-radius: 10px;
+            max-width: 280px; 
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
         }}
         .instructions {{ 
             background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
@@ -121,13 +142,16 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
         .instructions h3 {{
             color: #2d3748;
             margin-bottom: 15px;
-            font-weight: 500;
+            font-weight: 400;
+            font-size: 1.1rem;
+            letter-spacing: -0.3px;
         }}
         .instructions p {{
             color: #4a5568;
-            margin: 8px 0;
+            margin: 10px 0;
             font-size: 0.95rem;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-weight: 300;
         }}
         .status {{ 
             background: rgba(255, 255, 255, 0.8);
@@ -138,8 +162,10 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
         }}
         .status p {{
             color: #4a5568;
-            margin: 5px 0;
+            margin: 8px 0;
             font-size: 0.9rem;
+            font-weight: 300;
+            line-height: 1.4;
         }}
         .status span {{
             font-weight: 500;
@@ -167,6 +193,7 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
         <div class="status">
             <p>Status: <span id="status">Waiting for scan</span></p>
             <p>IP Address: <span id="ip-address">{local_ip}</span></p>
+            <p style="font-size: 0.9rem; color: #666; margin-top: 15px;">© 2025 Yinyin Zhou. All rights reserved.</p>
         </div>
     </div>
     
@@ -319,14 +346,14 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
             font-size: 0.9rem;
         }
         .success { 
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            color: #155724; 
-            border: 1px solid #c3e6cb; 
+            background: linear-gradient(135deg, #e6e6ff 0%, #d1d1ff 100%);
+            color: #4a4a8a; 
+            border: 1px solid #c7c7ff; 
         }
         .error { 
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            color: #721c24; 
-            border: 1px solid #f5c6cb; 
+            background: linear-gradient(135deg, #ffe6f0 0%, #ffd1e6 100%);
+            color: #8a4a6a; 
+            border: 1px solid #ffc7e6; 
         }
     </style>
 </head>
@@ -341,6 +368,10 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
             <button type="submit">Continue</button>
         </form>
         <div id="message"></div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <p style="font-size: 0.9rem; color: #666;">© 2025 Yinyin Zhou. All rights reserved.</p>
+        </div>
     </div>
     
     <script>
@@ -509,7 +540,9 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
         
         <div id="message"></div>
         
-        <div id="message"></div>
+        <div style="margin-top: 30px; text-align: center;">
+            <p style="font-size: 0.9rem; color: #666;">© 2025 Yinyin Zhou. All rights reserved.</p>
+        </div>
     </div>
     
     <script>
@@ -518,7 +551,7 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('message').innerHTML = 
-                        '<div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0;">' + data + '</div>';
+                        '<div style="background: linear-gradient(135deg, #e6e6ff 0%, #d1d1ff 100%); color: #4a4a8a; padding: 10px; border-radius: 5px; margin: 10px 0; border: 1px solid #c7c7ff;">' + data + '</div>';
                     updateStatus();
                 });
         }
@@ -528,7 +561,7 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
                 .then(response => response.text())
                 .then(data => {
                     document.getElementById('message').innerHTML = 
-                        '<div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0;">' + data + '</div>';
+                        '<div style="background: linear-gradient(135deg, #ffe6f0 0%, #ffd1e6 100%); color: #8a4a6a; padding: 10px; border-radius: 5px; margin: 10px 0; border: 1px solid #ffc7e6;">' + data + '</div>';
                     updateStatus();
                 });
         }
@@ -542,15 +575,179 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
                         document.getElementById('camera-status').textContent = 
                             status.is_detecting ? 'Taking Photos' : 'Stopped';
                         document.getElementById('photo-count').textContent = status.photo_count || 0;
+                        
+                        // 如果拍照完成（有照片且检测停止），自动跳转到complete页面
+                        if (status.photo_count > 0 && !status.is_detecting) {
+                            setTimeout(() => {
+                                window.location.href = '/complete';
+                            }, 2000); // 2秒后跳转
+                        }
                     } catch (e) {
                         // Ignore parsing errors
-                    }
-                });
+                        }
+                    });
         }
         
         // Update status periodically
         setInterval(updateStatus, 2000);
     </script>
+</body>
+</html>'''
+        
+        self.wfile.write(html.encode('utf-8'))
+    
+    def serve_complete(self):
+        """完成页面"""
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html; charset=utf-8')
+        self.end_headers()
+        
+        html = '''<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Complete</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container { 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 { 
+            color: #2d3748; 
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            animation: emailBounce 2s ease-in-out infinite;
+            display: inline-block;
+        }
+        
+        @keyframes emailBounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        .status { 
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        .status h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .status p {
+            color: #4a5568;
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+        .status strong {
+            color: #2d3748;
+            font-weight: 600;
+        }
+        .controls { 
+            margin: 30px 0; 
+        }
+        button { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: 500;
+            cursor: pointer; 
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .info { 
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        .info h4 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .info p {
+            color: #4a5568;
+            margin: 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✉️</div>
+        <h1>Email Sent</h1>
+        <p class="subtitle">Your photo has been captured and sent</p>
+        
+        <div class="status">
+            <h3>Photo Status</h3>
+            <p>Status: <strong>Completed</strong></p>
+            <p>Photos: <strong id="photo-count">1</strong> taken</p>
+            <p>Email: <strong id="email-address">Sent</strong></p>
+        </div>
+        
+        <div class="info">
+            <h4>What's Next:</h4>
+            <p>• Your photo has been automatically captured</p>
+            <p>• The photo has been sent to your email</p>
+            <p>• Check your email inbox for the photo</p>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center;">
+            <p style="font-size: 0.9rem; color: #666;">© 2025 Yinyin Zhou. All rights reserved.</p>
+        </div>
+        
+    </div>
+    
 </body>
 </html>'''
         
@@ -669,6 +866,119 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
         self.send_header('Content-type', 'text/plain')
         self.end_headers()
         self.wfile.write('Camera program stopped'.encode('utf-8'))
+    
+    def handle_send_feedback(self):
+        """处理反馈邮件发送"""
+        try:
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length)
+            data = urllib.parse.parse_qs(post_data.decode('utf-8'))
+            
+            feedback_text = data.get('feedback', [''])[0].strip()
+            
+            if not feedback_text:
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write('Please enter feedback text'.encode('utf-8'))
+                return
+            
+            # 发送反馈邮件到作者邮箱
+            from email_sender import EmailSender
+            email_sender = EmailSender()
+            
+            # 获取用户邮箱（如果有的话）
+            user_email = getattr(self.server, 'current_email', 'Unknown User')
+            
+            # 创建邮件内容
+            subject = f"User Feedback from The Unseen Portrait"
+            body = f"""User Feedback from The Unseen Portrait System
+
+User Email: {user_email}
+Feedback Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+User Feedback:
+{feedback_text}
+
+---
+Sent from The Unseen Portrait System
+"""
+            
+            # 发送简单的文本邮件
+            print(f"📧 开始发送反馈邮件...")
+            success = self.send_simple_email(
+                to_email="rebecca.zyy103@gmail.com",
+                subject=subject,
+                body=body
+            )
+            print(f"📧 邮件发送结果: {success}")
+            
+            if success:
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                self.end_headers()
+                self.wfile.write('Feedback sent successfully'.encode('utf-8'))
+            else:
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                self.end_headers()
+                self.wfile.write('Failed to send feedback'.encode('utf-8'))
+                
+        except Exception as e:
+            print(f"Error sending feedback: {e}")
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write('Error sending feedback'.encode('utf-8'))
+    
+    def send_simple_email(self, to_email, subject, body):
+        """发送简单文本邮件"""
+        try:
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+            
+            # 使用现有的邮件配置
+            email_sender = EmailSender()
+            
+            print(f"📧 尝试发送反馈邮件到: {to_email}")
+            print(f"📧 SMTP服务器: {email_sender.smtp_server}:{email_sender.smtp_port}")
+            print(f"📧 发送者邮箱: {email_sender.sender_email}")
+            
+            # 创建邮件
+            msg = MIMEMultipart()
+            msg['From'] = email_sender.sender_email
+            msg['To'] = to_email
+            msg['Subject'] = subject
+            
+            # 添加邮件正文
+            msg.attach(MIMEText(body, 'plain', 'utf-8'))
+            
+            # 发送邮件
+            print("📧 正在连接SMTP服务器...")
+            with smtplib.SMTP(email_sender.smtp_server, email_sender.smtp_port) as server:
+                print("📧 正在启动TLS...")
+                server.starttls()
+                print("📧 正在登录...")
+                server.login(email_sender.sender_email, email_sender.sender_password)
+                print("📧 正在发送邮件...")
+                server.send_message(msg)
+            
+            print(f"✅ 反馈邮件已发送到: {to_email}")
+            return True
+            
+        except Exception as e:
+            print(f"❌ 发送反馈邮件失败: {e}")
+            print(f"❌ 错误类型: {type(e).__name__}")
+            import traceback
+            print(f"❌ 详细错误: {traceback.format_exc()}")
+            return False
     
     def get_local_ip(self):
         """获取本机IP地址"""

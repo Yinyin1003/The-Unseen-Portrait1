@@ -294,6 +294,11 @@ class BackDetector:
                     if photo_path and callback:
                         callback(photo_path)
                     
+                    # 拍一张照片后自动停止
+                    print("📸 照片已拍摄完成，自动停止检测")
+                    self.is_detecting = False
+                    break
+                    
                     last_photo_time = current_time
                     self.last_photo_time = current_time  # 记录最后拍照时间
                 else:
