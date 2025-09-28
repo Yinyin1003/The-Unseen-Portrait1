@@ -3,41 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>拍照程序</title>
+    <title>Photo Capture</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; margin-bottom: 30px; }
-        .status { background: #e8f4fd; padding: 20px; border-radius: 5px; margin: 20px 0; }
-        .controls { margin: 20px 0; }
-        button { background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin: 0 10px; }
-        button:hover { background: #218838; }
-        button.stop { background: #dc3545; }
-        button.stop:hover { background: #c82333; }
-        .info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container { 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 { 
+            color: #2d3748; 
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
+        }
+        .status { 
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        .status h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .status p {
+            color: #4a5568;
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+        .status strong {
+            color: #2d3748;
+            font-weight: 600;
+        }
+        .controls { 
+            margin: 30px 0; 
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        button { 
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: 500;
+            cursor: pointer; 
+            transition: all 0.3s ease;
+            min-width: 140px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.3);
+        }
+        button.stop { 
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+        button.stop:hover {
+            box-shadow: 0 10px 25px rgba(245, 101, 101, 0.3);
+        }
+        .info { 
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        .info h4 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .info p {
+            color: #4a5568;
+            margin: 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        #message {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📸 拍照程序</h1>
+        <h1>Photo Capture</h1>
+        
         <div class="status">
-            <h3>系统状态</h3>
-            <p>邮箱地址：<strong id="email-display">{{ email }}</strong></p>
-            <p>拍照状态：<span id="camera-status">未启动</span></p>
-            <p>已拍摄：<span id="photo-count">0</span> 张照片</p>
+            <h3>System Status</h3>
+            <p>Email: <strong id="email-display">{{ email }}</strong></p>
+            <p>Status: <span id="camera-status">Not started</span></p>
+            <p>Photos taken: <span id="photo-count">0</span></p>
         </div>
         
         <div class="controls">
-            <button id="start-btn" onclick="startCamera()">启动拍照</button>
-            <button id="stop-btn" class="stop" onclick="stopCamera()">停止拍照</button>
+            <button id="start-btn" onclick="startCamera()">Start Capture</button>
+            <button id="stop-btn" class="stop" onclick="stopCamera()">Stop Capture</button>
         </div>
         
         <div class="info">
-            <h4>使用说明：</h4>
-            <p>1. 点击"启动拍照"开始检测</p>
-            <p>2. 将后脑勺对准电脑摄像头</p>
-            <p>3. 系统会自动检测并拍照</p>
-            <p>4. 照片将自动发送到您的邮箱</p>
+            <h4>Instructions:</h4>
+            <p>1. Click "Start Capture" to begin detection</p>
+            <p>2. Position the back of your head towards the camera</p>
+            <p>3. The system will automatically detect and capture photos</p>
+            <p>4. Photos will be automatically sent to your email</p>
         </div>
         
         <div id="message"></div>
@@ -49,7 +139,7 @@
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('message').innerHTML = 
-                        `<div style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0;">${data.message}</div>`;
+                        `<div style="background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); color: #155724; padding: 15px; border-radius: 12px; margin: 10px 0; font-size: 0.9rem;">${data.message}</div>`;
                     updateStatus();
                 });
         }
@@ -59,7 +149,7 @@
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('message').innerHTML = 
-                        `<div style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0;">${data.message}</div>`;
+                        `<div style="background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%); color: #721c24; padding: 15px; border-radius: 12px; margin: 10px 0; font-size: 0.9rem;">${data.message}</div>`;
                     updateStatus();
                 });
         }
@@ -69,12 +159,12 @@
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('camera-status').textContent = 
-                        data.is_detecting ? '拍照中' : '已停止';
+                        data.is_detecting ? 'Capturing' : 'Stopped';
                     document.getElementById('photo-count').textContent = data.photo_count || 0;
                 });
         }
         
-        // 定期更新状态
+        // Update status periodically
         setInterval(updateStatus, 2000);
     </script>
 </body>

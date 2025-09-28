@@ -65,31 +65,108 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Unseen Portrait</title>
     <style>
-        body {{ font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f5f5f5; }}
-        .container {{ max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }}
-        h1 {{ color: #333; margin-bottom: 30px; }}
-        .qr-container {{ margin: 20px 0; }}
-        .qr-code {{ max-width: 300px; margin: 0 auto; }}
-        .instructions {{ background: #e8f4fd; padding: 20px; border-radius: 5px; margin: 20px 0; }}
-        .status {{ margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px; }}
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }}
+        .container {{ 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }}
+        h1 {{ 
+            color: #2d3748; 
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+        }}
+        .subtitle {{
+            color: #718096;
+            font-size: 1.1rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }}
+        .qr-container {{ 
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+        }}
+        .qr-code {{ 
+            max-width: 250px; 
+            margin: 0 auto;
+            border-radius: 10px;
+        }}
+        .instructions {{ 
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }}
+        .instructions h3 {{
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }}
+        .instructions p {{
+            color: #4a5568;
+            margin: 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }}
+        .status {{ 
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            border: 1px solid rgba(0,0,0,0.05);
+        }}
+        .status p {{
+            color: #4a5568;
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }}
+        .status span {{
+            font-weight: 500;
+            color: #2d3748;
+        }}
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📸 The Unseen Portrait</h1>
+        <h1>The Unseen Portrait</h1>
+        <p class="subtitle">Capture the moment from behind</p>
+        
         <div class="instructions">
-            <h3>Instructions:</h3>
+            <h3>How to use:</h3>
             <p>1. Scan the QR code below with your phone</p>
             <p>2. Enter your email address on your phone</p>
             <p>3. The computer will automatically start the photo program</p>
             <p>4. Photos will be automatically sent to your email</p>
         </div>
+        
         <div class="qr-container">
             <div id="qr-code" class="qr-code"></div>
         </div>
+        
         <div class="status">
-            <p>System Status: <span id="status">Waiting for scan</span></p>
-            <p>IP Address: {local_ip}</p>
+            <p>Status: <span id="status">Waiting for scan</span></p>
+            <p>IP Address: <span id="ip-address">{local_ip}</span></p>
         </div>
     </div>
     
@@ -165,28 +242,103 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Enter Email Address</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; margin-bottom: 30px; }
-        .form-group { margin: 20px 0; text-align: left; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input[type="email"] { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 16px; }
-        button { background: #007bff; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; width: 100%; }
-        button:hover { background: #0056b3; }
-        .message { margin: 20px 0; padding: 10px; border-radius: 5px; }
-        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container { 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 { 
+            color: #2d3748; 
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
+        }
+        .form-group { 
+            margin: 25px 0; 
+            text-align: left; 
+        }
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 500;
+            color: #4a5568;
+            font-size: 0.95rem;
+        }
+        input[type="email"] { 
+            width: 100%; 
+            padding: 15px 20px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 12px; 
+            font-size: 16px;
+            background: white;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        input[type="email"]:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        button { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: 500;
+            cursor: pointer; 
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .message { 
+            margin: 20px 0; 
+            padding: 15px; 
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+        .success { 
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724; 
+            border: 1px solid #c3e6cb; 
+        }
+        .error { 
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24; 
+            border: 1px solid #f5c6cb; 
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📧 Enter Email Address</h1>
+        <h1>Enter Email Address</h1>
         <form id="email-form">
             <div class="form-group">
                 <label for="email">Email Address:</label>
                 <input type="email" id="email" name="email" placeholder="e.g. user@example.com" required>
             </div>
-            <button type="submit">Submit</button>
+            <button type="submit">Continue</button>
         </form>
         <div id="message"></div>
     </div>
@@ -232,41 +384,130 @@ class SimpleWebHandler(BaseHTTPRequestHandler):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Unseen Portrait - Camera</title>
+    <title>Photo Capture</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; margin-bottom: 30px; }
-        .status { background: #e8f4fd; padding: 20px; border-radius: 5px; margin: 20px 0; }
-        .controls { margin: 20px 0; }
-        button { background: #28a745; color: white; padding: 12px 30px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin: 0 10px; }
-        button:hover { background: #218838; }
-        button.stop { background: #dc3545; }
-        button.stop:hover { background: #c82333; }
-        .info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container { 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 { 
+            color: #2d3748; 
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+        }
+        .subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+        .status { 
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        .status h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .status p {
+            color: #4a5568;
+            margin: 8px 0;
+            font-size: 0.95rem;
+        }
+        .status strong {
+            color: #2d3748;
+            font-weight: 600;
+        }
+        .controls { 
+            margin: 30px 0; 
+        }
+        button { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            font-weight: 500;
+            cursor: pointer; 
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        .info { 
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        .info h4 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .info p {
+            color: #4a5568;
+            margin: 8px 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        #message {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📸 The Unseen Portrait</h1>
+        <h1>Photo Capture</h1>
+        <p class="subtitle">Ready to capture the moment</p>
+        
         <div class="status">
             <h3>System Status</h3>
-            <p>Camera Status: <span id="camera-status">Not Started</span></p>
-            <p>Photos Taken: <span id="photo-count">0</span> photos</p>
+            <p>Status: <strong id="camera-status">Not Started</strong></p>
+            <p>Photos: <strong id="photo-count">0</strong> taken</p>
         </div>
         
         <div class="controls">
-            <button id="start-btn" onclick="startCamera()">Start Camera</button>
-            <button id="stop-btn" class="stop" onclick="stopCamera()">Stop Camera</button>
+            <button id="start-btn" onclick="startCamera()">Start Capture</button>
         </div>
         
         <div class="info">
             <h4>Instructions:</h4>
-            <p>1. Click "Start Camera" to begin detection</p>
+            <p>1. Click "Start Capture" to begin detection</p>
             <p>2. Position the back of your head towards the camera</p>
             <p>3. The system will automatically detect and take photos</p>
             <p>4. Photos will be automatically sent to your email</p>
         </div>
+        
+        <div id="message"></div>
         
         <div id="message"></div>
     </div>
