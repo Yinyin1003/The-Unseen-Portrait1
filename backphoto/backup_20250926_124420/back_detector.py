@@ -207,8 +207,15 @@ class BackDetector:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"{photo_dir}/photo_{timestamp}_{self.photo_count:03d}.jpg"
             
-            # 保存照片
-            cv2.imwrite(filename, frame)
+            # 保存干净的照片（没有框线和文字）
+            # 重新从摄像头获取一帧干净的画面
+            ret, clean_frame = self.cap.read()
+            if ret:
+                cv2.imwrite(filename, clean_frame)
+            else:
+                # 如果无法获取新帧，使用当前帧但去掉所有绘制内容
+                cv2.imwrite(filename, frame)
+            
             self.photo_count += 1
             
             print(f"📸 照片已保存: {filename}")
@@ -263,11 +270,11 @@ class BackDetector:
                              (0, 0, 255), 3)
                 cv2.putText(frame, "FACE DETECTED - NO PHOTO", (10, 60), 
                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            else:
-                # 没有检测到正脸，显示绿色
-                cv2.rectangle(frame, (det_x_px, det_y_px), 
-                             (det_x_px + det_w_px, det_y_px + det_h_px), 
-                             (0, 255, 0), 2)
+            # else:
+            #     # 没有检测到正脸，显示绿色 - 已注释掉绿色框线
+            #     cv2.rectangle(frame, (det_x_px, det_y_px), 
+            #                  (det_x_px + det_w_px, det_y_px + det_h_px), 
+            #                  (0, 255, 0), 2)
             
             # 如果检测到后脑勺且在检测区域内，且没有检测到正脸
             if head_detected and self.is_in_detection_area(contour, frame.shape) and len(faces) == 0:

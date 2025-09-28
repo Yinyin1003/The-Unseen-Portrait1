@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后脑勺拍照系统</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 30px; }
+        .qr-container { margin: 20px 0; }
+        .qr-code { max-width: 300px; margin: 0 auto; }
+        .instructions { background: #e8f4fd; padding: 20px; border-radius: 5px; margin: 20px 0; }
+        .status { margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 后脑勺拍照系统</h1>
+        <div class="instructions">
+            <h3>使用说明：</h3>
+            <p>1. 用手机扫描下方二维码</p>
+            <p>2. 在手机上输入您的邮箱地址</p>
+            <p>3. 电脑将自动启动拍照程序</p>
+            <p>4. 照片将自动发送到您的邮箱</p>
+        </div>
+        <div class="qr-container">
+            <div id="qr-code" class="qr-code"></div>
+        </div>
+        <div class="status">
+            <p>系统状态：<span id="status">等待扫描</span></p>
+            <p>IP地址：<span id="ip-address"></span></p>
+        </div>
+    </div>
+    
+    <script>
+        // 加载二维码
+        fetch('/api/qr-code')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('qr-code').innerHTML = `<img src="${data.qr_code}" alt="二维码">`;
+                document.getElementById('ip-address').textContent = data.ip;
+            });
+        
+        // 定期检查状态
+        setInterval(() => {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    let status = '等待扫描';
+                    if (data.current_email) {
+                        status = `已连接 - ${data.current_email}`;
+                    }
+                    if (data.is_detecting) {
+                        status = `拍照中 - 已拍摄 ${data.photo_count} 张`;
+                    }
+                    document.getElementById('status').textContent = status;
+                });
+        }, 2000);
+    </script>
+</body>
+</html>
