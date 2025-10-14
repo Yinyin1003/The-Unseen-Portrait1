@@ -19,3 +19,4 @@ echo "🚀 启动系统..."
 cd /Users/zhouyinyin/Downloads/The\ Unseen\ Portrait/The-Unseen-Portrait/backphoto
 python3 simple_web_system.py
 
+
